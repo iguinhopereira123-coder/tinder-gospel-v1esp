@@ -7,6 +7,12 @@
   border-color: #e5e7eb;
 }
 
+/* ========== MOBILE FIRST: base ========== */
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
 :root {
   --background: 330 25% 98%;
   --foreground: 330 15% 15%;
@@ -41,14 +47,18 @@
 body {
   margin: 0;
   font-family: Poppins, sans-serif;
+  font-size: 16px; /* Evita zoom en inputs en iOS */
   color: hsl(var(--foreground));
   background: var(--gradient-background);
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Utilidades del original */
@@ -77,24 +87,40 @@ body {
   box-shadow: var(--shadow-glow);
 }
 
-/* Layout común */
+/* Layout común — mobile first: base = móvil, contenido centrado con safe-area */
 .page {
   position: relative;
+  width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 1rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   min-height: 100vh;
-  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-/* Botón idioma (como el original: esquina superior derecha) */
+@media (min-width: 375px) {
+  .page {
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+  }
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* Botón idioma — safe-area para notch */
 .lang-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
   padding: 0.5rem 0.75rem;
   border-radius: 9999px;
   border: 1px solid hsl(var(--border));
@@ -162,11 +188,12 @@ body {
 }
 
 .landing-page h1 {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
   line-height: 1.35;
   margin: 0 0 0.75rem;
   font-weight: 700;
   color: hsl(var(--foreground));
+  word-wrap: break-word;
 }
 
 .landing-page h1 strong {
@@ -209,6 +236,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
+  min-height: 2.75rem;
   padding: 1rem 1.5rem;
   font-size: 1.05rem;
   text-decoration: none;
@@ -295,6 +323,7 @@ a.landing-cta:hover {
 /* Botón Continuar: mismo estilo que el sitio de referencia (gradiente primario, sombra) */
 .continue-btn {
   margin-top: 1.25rem;
+  min-height: 2.75rem; /* touch target 44px */
   padding: 1rem 1.5rem;
   font-size: 1.05rem;
   font-weight: 700;
@@ -339,6 +368,7 @@ a.landing-cta:hover {
 
 .form-group input {
   width: 100%;
+  min-height: 2.75rem; /* ~44px touch target */
   padding: 0.75rem 1rem;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid hsl(var(--input));
@@ -393,6 +423,7 @@ a.landing-cta:hover {
 
 .gender-btn {
   flex: 1;
+  min-height: 2.75rem;
   padding: 0.85rem;
   border-radius: calc(var(--radius) - 2px);
   border: 2px solid hsl(var(--input));
@@ -430,6 +461,7 @@ a.landing-cta:hover {
   align-items: center;
   gap: 1.125rem;
   width: 100%;
+  min-height: 2.75rem;
   padding: 1.125rem 1.375rem;
   border-radius: calc(var(--radius) + 2px);
   border: 2px solid hsl(var(--border));
@@ -498,14 +530,21 @@ a.landing-cta:hover {
   gap: 0.5rem;
 }
 
-/* Grid 3x3 como en la referencia */
+/* Grid 3x3 como en la referencia — en móvil muy estrecho 2 columnas para mejor toque */
 .interest-chips-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
 }
 
+@media (min-width: 400px) {
+  .interest-chips-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .interest-chip {
+  min-height: 2.75rem;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   border: 2px solid hsl(var(--input));
@@ -632,15 +671,16 @@ a.landing-cta:hover {
 /* ========== CHECKOUT – igual ao site referência ========== */
 .checkout-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(180deg, hsl(330 50% 97%) 0%, hsl(0 0% 100%) 100%);
-  padding-bottom: 3rem;
+  padding-bottom: max(3rem, env(safe-area-inset-bottom));
 }
 
 .checkout-banner {
   background: hsl(0 72% 45%);
   color: #fff;
   text-align: center;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
 }
 
 .checkout-banner-title {
@@ -663,9 +703,10 @@ a.landing-cta:hover {
 }
 
 .checkout-container {
+  width: 100%;
   max-width: 56rem;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem max(1rem, env(safe-area-inset-left)) 1.5rem max(1rem, env(safe-area-inset-right));
 }
 
 .checkout-hero {
@@ -687,11 +728,12 @@ a.landing-cta:hover {
 }
 
 .checkout-hero-title {
-  font-size: 1.75rem;
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
   font-weight: 700;
   color: hsl(330 15% 20%);
   line-height: 1.25;
   margin: 0;
+  word-wrap: break-word;
 }
 
 @media (min-width: 768px) {
@@ -1028,6 +1070,7 @@ a.landing-cta:hover {
 
 .checkout-cta-btn {
   width: 100%;
+  min-height: 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1449,10 +1492,13 @@ a.landing-cta:hover {
 
 /* Results: layout tipo referência (lista horizontal, banner, CTA fijo) */
 .results-page-wrap {
+  width: 100%;
   max-width: 28rem;
   margin: 0 auto;
-  padding: 1rem 1rem 10rem;
+  padding: 1rem max(1rem, env(safe-area-inset-left)) 10rem max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(10rem, calc(10rem + env(safe-area-inset-bottom)));
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .results-header {
@@ -1639,7 +1685,7 @@ a.landing-cta:hover {
   left: 0;
   right: 0;
   z-index: 50;
-  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+  padding: 1rem max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-right));
   background: linear-gradient(to top, hsl(var(--card)), hsl(var(--card) / 0.95), transparent);
 }
 
@@ -1654,6 +1700,7 @@ a.landing-cta:hover {
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  min-height: 2.75rem;
   padding: 1rem 1.5rem;
   border-radius: var(--radius);
   background: var(--gradient-primary);
