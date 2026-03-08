@@ -153,9 +153,9 @@ export default function Checkout() {
             </p>
             <div className="checkout-price-box">
               <div className="checkout-price-old">De 29,90 USD</div>
-              <div className="checkout-price-current">9,90 USD</div>
+              <div className="checkout-price-current">6,90 USD</div>
               <div className="checkout-price-label">PAGO ÚNICO - SIN MENSUALIDAD</div>
-              <div className="checkout-price-save">AHORRA 20 USD</div>
+              <div className="checkout-price-save">AHORRA 23 USD</div>
             </div>
             <ul className="checkout-benefits">
               {BENEFITS.map((text, i) => (
