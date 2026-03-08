@@ -140,9 +140,9 @@ export default function Landing() {
           <MapPinIcon />
           <span>
             {locationLoading ? (
-              'Buscando tu ubicación por IP...'
+              'Buscando tu región...'
             ) : browserLocationLoading ? (
-              'Obteniendo tu ubicación...'
+              'Buscando tu región...'
             ) : hasLocation ? (
               <>
                 Ubicación detectada: <strong>{locationLabel}</strong> — Personas <strong>INCREÍBLES</strong> cerca de ti <strong>¡AHORA!</strong>

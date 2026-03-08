@@ -149,7 +149,7 @@ export default function Results() {
       case 'compatibilities':
         return 'Identificando compatibilidades PERFECTAS...'
       case 'profiles':
-        return `Buscando perfiles en ${(city && country) ? `${city}, ${country}` : (country || city || region || 'tu región')}...`
+        return 'Buscando tu región...'
       case 'affinities':
         return 'Calculando afinidades ESPIRITUALES...'
       default:
