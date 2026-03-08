@@ -45,12 +45,12 @@ const BENEFITS = [
 ]
 
 export default function Checkout() {
-  const { city, region } = useLocation()
+  const { city, region, country } = useLocation()
   const { regionCount, loading } = useCountry()
   const [minutes, setMinutes] = useState(14)
   const [seconds, setSeconds] = useState(52)
 
-  const locationText = [city, region].filter(Boolean).join(', ') || 'tu región'
+  const locationText = (city && country) ? `${city}, ${country}` : (country || city || region || 'tu región')
   const count = loading ? '424' : String(regionCount)
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useLocation } from '../hooks/useLocation'
 import { useUser } from '../context/UserContext'
 import { getUtmSearch } from '../utils/utm'
@@ -120,10 +120,12 @@ function LockIcon() {
 }
 
 export default function Results() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [completedSteps, setCompletedSteps] = useState(0)
-  const { city, region } = useLocation()
+  const { city, region, country } = useLocation()
   const { gender } = useUser()
+  const checkoutPath = `/checkout${getUtmSearch()}`
   // Como no site original: se selecionou Homem (M) mostra perfis de mulher; se Mulher (F) mostra perfis de homem
   const profiles = gender === 'M' ? WOMEN_PROFILES : gender === 'F' ? MEN_PROFILES : WOMEN_PROFILES
 
@@ -147,7 +149,7 @@ export default function Results() {
       case 'compatibilities':
         return 'Identificando compatibilidades PERFECTAS...'
       case 'profiles':
-        return `Buscando perfiles en ${[city, region].filter(Boolean).join(', ') || 'tu región'}...`
+        return `Buscando perfiles en ${(city && country) ? `${city}, ${country}` : (country || city || region || 'tu región')}...`
       case 'affinities':
         return 'Calculando afinidades ESPIRITUALES...'
       default:
@@ -191,7 +193,7 @@ export default function Results() {
     )
   }
 
-  const locationText = [city, region].filter(Boolean).join(', ') || 'tu región'
+  const locationText = (city && country) ? `${city}, ${country}` : (country || city || region || 'tu región')
 
   return (
     <div className="page results-page-wrap">
@@ -244,10 +246,17 @@ export default function Results() {
 
       <div className="results-cta-fixed">
         <div className="results-cta-inner">
-          <Link to={`/checkout${getUtmSearch()}`} className="results-cta-btn">
+          <a
+            href={checkoutPath}
+            className="results-cta-btn"
+            onClick={(e) => {
+              e.preventDefault()
+              navigate(checkoutPath)
+            }}
+          >
             <HeartIcon filled />
             Ver Todas las Conexiones
-          </Link>
+          </a>
           <p className="results-cta-note">Tus valores y fe han atraído a personas INCREÍBLES de tu región.</p>
         </div>
       </div>

@@ -1,6 +1,27 @@
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCountry } from '../hooks/useCountry'
+import { useLocation } from '../hooks/useLocation'
 import { getUtmSearch } from '../utils/utm'
+
+const NOMINATIM_REVERSE = 'https://nominatim.openstreetmap.org/reverse'
+
+async function reverseGeocode(lat, lon) {
+  const url = `${NOMINATIM_REVERSE}?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&format=json`
+  const res = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'TinderGospel-Landing/1.0'
+    }
+  })
+  if (!res.ok) throw new Error('Geocode failed')
+  const data = await res.json()
+  const a = data.address || {}
+  const city = a.city || a.town || a.village || a.municipality || null
+  const region = a.state || a.region || a.county || null
+  const country = a.country || null
+  return { city, region, country }
+}
 
 function HeartIcon() {
   return (
@@ -33,6 +54,46 @@ function MapPinIcon() {
 export default function Landing() {
   const navigate = useNavigate()
   const { loading, regionCount, todayCount } = useCountry()
+  const { city, region, country, loading: locationLoading } = useLocation()
+  const [browserLocation, setBrowserLocation] = useState(null)
+  const [browserLocationLoading, setBrowserLocationLoading] = useState(false)
+  const [browserLocationError, setBrowserLocationError] = useState(null)
+
+  const requestBrowserLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setBrowserLocationError('Tu navegador no admite geolocalización.')
+      return
+    }
+    setBrowserLocationError(null)
+    setBrowserLocationLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { city: c, region: r, country: co } = await reverseGeocode(
+            position.coords.latitude,
+            position.coords.longitude
+          )
+          setBrowserLocation({ city: c, region: r, country: co })
+        } catch {
+          setBrowserLocationError('No se pudo obtener la ciudad.')
+        } finally {
+          setBrowserLocationLoading(false)
+        }
+      },
+      () => {
+        setBrowserLocationError('Permiso denegado o ubicación no disponible.')
+        setBrowserLocationLoading(false)
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    )
+  }, [])
+
+  const hasLocation = (city || region || country) || (browserLocation?.city || browserLocation?.region || browserLocation?.country)
+  const effectiveCity = city || browserLocation?.city
+  const effectiveCountry = country || browserLocation?.country
+  const locationLabel = effectiveCity && effectiveCountry
+    ? `${effectiveCity}, ${effectiveCountry}`
+    : (effectiveCountry || effectiveCity || '')
 
   if (loading) {
     return (
@@ -77,7 +138,35 @@ export default function Landing() {
         </a>
         <div className="landing-location">
           <MapPinIcon />
-          <span>Activa tu ubicación para encontrar personas <strong>INCREÍBLES</strong> cerca de ti <strong>¡AHORA!</strong></span>
+          <span>
+            {locationLoading ? (
+              'Buscando tu ubicación por IP...'
+            ) : browserLocationLoading ? (
+              'Obteniendo tu ubicación...'
+            ) : hasLocation ? (
+              <>
+                Ubicación detectada: <strong>{locationLabel}</strong> — Personas <strong>INCREÍBLES</strong> cerca de ti <strong>¡AHORA!</strong>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="landing-location-link"
+                  onClick={requestBrowserLocation}
+                  disabled={browserLocationLoading}
+                >
+                  Activa tu ubicación
+                </button>
+                {' para encontrar personas '}
+                <strong>INCREÍBLES</strong>
+                {' cerca de ti '}
+                <strong>¡AHORA!</strong>
+                {browserLocationError && (
+                  <small className="landing-location-error"> {browserLocationError}</small>
+                )}
+              </>
+            )}
+          </span>
         </div>
       </div>
     </div>
